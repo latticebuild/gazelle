@@ -1,0 +1,87 @@
+load("@custom_js//js:defs.bzl", "js_knip_test", "js_oxfmt_test", "js_oxlint_test", "js_package", "js_tsc", "js_tsconfig")
+
+# gazelle:js_check js_oxlint_test //library:.oxlintrc.json
+# gazelle:js_check js_oxfmt_test //library:.oxfmtrc.json
+# gazelle:js_check js_knip_test
+js_package(
+    name = "js",
+    package_name = "@fixture/all-library",
+    srcs = [":lib_tsc"],
+    package = "package.json",
+    visibility = ["//visibility:public"],
+)
+
+exports_files([
+    ".oxlintrc.json",
+    ".oxfmtrc.json",
+])
+
+js_tsc(
+    name = "lib_tsc",
+    config = ":lib_tsconfig",
+    tsc = "@npm//node_modules/@typescript/native:tsc",
+    typescript = "@npm//node_modules/typescript",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+)
+
+js_tsconfig(
+    name = "lib_tsconfig",
+    srcs = glob(["src/**/*.ts"]),
+    compiler_options = {
+        "outDir": "dist",
+        "rootDir": "src",
+    },
+    config = "tsconfig.lib.json",
+    extends = ["//:base_tsconfig"],
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+)
+
+js_oxlint_test(
+    name = "oxlint_test",
+    srcs = glob([
+        "src/**/*.ts",
+        "tsconfig*.json",
+    ]),
+    data = [":.oxlintrc.json"],
+    oxlint = "@npm//node_modules/oxlint:bin",
+    deps = [":lib_tsconfig"],
+)
+
+js_oxfmt_test(
+    name = "oxfmt_test",
+    srcs = glob([
+        "*.json",
+        "src/**/*.ts",
+    ]),
+    data = [":.oxfmtrc.json"],
+    oxfmt = "@npm//node_modules/oxfmt:bin",
+)
+
+js_knip_test(
+    name = "knip_test",
+    srcs = glob([
+        "*.json",
+        "src/**/*.ts",
+    ]),
+    knip = "@npm//node_modules/knip:bin",
+    workspace = "@fixture/all-library",
+    deps = [":lib_tsconfig"],
+)
+
+js_knip_test(
+    name = "knip_production_test",
+    srcs = glob([
+        "*.json",
+        "src/**/*.ts",
+    ]),
+    knip = "@npm//node_modules/knip:bin",
+    production = True,
+    workspace = "@fixture/all-library",
+    deps = [":lib_tsconfig"],
+)

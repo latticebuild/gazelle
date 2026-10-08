@@ -1,0 +1,27 @@
+min_version = "2026.9.16"
+[tools]
+bazel = "9.2.0"
+buildifier = "10.0.1"
+go = "1.27.1"
+"aqua:jdx/hk" = "2.0.0"
+pkl = "0.32.1"
+nu = "0.115.1"
+actionlint = "1.7.12"
+shellcheck = "0.11.0"
+node = "26.8.2"
+pnpm = "12.4.2"
+buf = "1.73.0"
+[tasks.bootstrap]
+run = ["pnpm install --frozen-lockfile", "pnpm --dir examples/typescript install --frozen-lockfile", "pnpm --dir examples/all install --frozen-lockfile"]
+
+[tasks.generate]
+run = "buf generate"
+
+[tasks.verify-generated]
+run = ["mise run generate", "git diff --exit-code -- generated js/plugin/src/generated"]
+
+[tasks.docs]
+run = "nu scripts/docs.nu"
+
+[tasks.check-docs]
+run = "nu scripts/docs.nu --check"

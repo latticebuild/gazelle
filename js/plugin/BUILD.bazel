@@ -1,0 +1,105 @@
+load("@bazel_skylib//rules:select_file.bzl", "select_file")
+load("@latticebuild_js//js:defs.bzl", "js_binary", "js_package", "js_tsc", "js_tsconfig")
+
+package(default_visibility = [
+    "//:__pkg__",
+    "//js:__pkg__",
+])
+
+# The plugin bootstrap stays buildable before workspace generation.
+# gazelle:ignore
+
+js_binary(
+    name = "gazelle",
+    bin = ":main",
+    data = [":js"],
+    target_compatible_with = [],
+    visibility = ["//visibility:public"],
+)
+
+select_file(
+    name = "main",
+    srcs = ":lib_tsc",
+    subpath = "dist/main.js",
+)
+
+js_package(
+    name = "js",
+    package_name = "@latticebuild/gazelle-js",
+    srcs = [":lib_tsc"],
+    target_compatible_with = [],
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+    deps = [
+        "@pnpm//node_modules/@bufbuild/protobuf",
+        "@pnpm//node_modules/@connectrpc/connect",
+        "@pnpm//node_modules/@connectrpc/connect-node",
+        "@pnpm//node_modules/@vercel/nft",
+        "@pnpm//node_modules/resolve.exports",
+        "@pnpm//node_modules/svelte",
+        "@pnpm//node_modules/typescript",
+        "@pnpm//node_modules/zod",
+    ],
+)
+
+js_tsc(
+    name = "lib_tsc",
+    config = ":lib_tsconfig",
+    target_compatible_with = [],
+    tsc = "@pnpm//node_modules/@typescript/native:tsc",
+    typescript = "@pnpm//node_modules/typescript",
+)
+
+js_tsconfig(
+    name = "lib_tsconfig",
+    srcs = glob(
+        ["src/**/*.ts"],
+        exclude = ["src/**/*.test.ts"],
+    ),
+    compiler_options = {
+        "declaration": True,
+        "declarationMap": True,
+        "outDir": "dist",
+        "resolveJsonModule": True,
+        "rootDir": "src",
+        "sourceMap": True,
+    },
+    config = "tsconfig.lib.json",
+    data = ["tsconfig.base.json"],
+    target_compatible_with = [],
+    deps = [
+        "@pnpm//node_modules/@bufbuild/protobuf",
+        "@pnpm//node_modules/@connectrpc/connect",
+        "@pnpm//node_modules/@connectrpc/connect-node",
+        "@pnpm//node_modules/@types/node",
+        "@pnpm//node_modules/@vercel/nft",
+        "@pnpm//node_modules/resolve.exports",
+        "@pnpm//node_modules/svelte",
+        "@pnpm//node_modules/typescript",
+        "@pnpm//node_modules/zod",
+    ],
+)
+
+filegroup(
+    name = "development_sources",
+    srcs = glob([
+        "src/**/*.ts",
+        "tests/**/*.ts",
+    ]),
+)
+
+filegroup(
+    name = "fixtures",
+    srcs = glob(["testdata/**"]),
+)
+
+filegroup(
+    name = "config_files",
+    srcs = [
+        "package.json",
+        "tsconfig.base.json",
+        "tsconfig.lib.json",
+    ],
+)

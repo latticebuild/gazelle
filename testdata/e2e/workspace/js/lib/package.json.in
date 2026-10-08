@@ -1,0 +1,5 @@
+{
+  "name": "@fixture/lib",
+  "type": "module",
+  "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } }
+}

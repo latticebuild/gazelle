@@ -1,0 +1,7 @@
+{
+  "name": "@latticebuild/gazelle-development",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@12.4.2"
+}

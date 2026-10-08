@@ -1,0 +1,83 @@
+load("@custom_js//js:defs.bzl", "js_tsc", "js_tsconfig", "js_vite", "js_vite_config", "js_vitest")
+
+# gazelle:js_typescript @pnpm//node_modules/@typescript/native
+
+js_vitest(
+    name = "vitest_test",
+    size = "small",
+    srcs = glob(["src/**/*.test.ts"]),
+    config = ":vitest_config",
+    coverage_provider = "@pnpm//node_modules/@vitest/coverage-v8",
+    vitest = "@pnpm//node_modules/vitest:bin",
+    deps = [
+        "src/format.ts",
+        "//js/lib",
+        "@pnpm//node_modules/vitest",
+    ],
+)
+
+js_vite(
+    name = "vite_build",
+    config = ":vite_config",
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+    vite = "@pnpm//node_modules/vite:bin",
+)
+
+js_vite_config(
+    name = "vite_config",
+    config = "vite.config.ts",
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+    deps = ["@pnpm//node_modules/vite"],
+)
+
+js_vite_config(
+    name = "vitest_config",
+    testonly = True,
+    config = "vitest.config.ts",
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+    deps = [
+        ":vite_config",
+        "//js/lib:vitest_config",
+        "@pnpm//node_modules/vitest",
+    ],
+)
+
+js_tsc(
+    name = "tsc",
+    testonly = True,
+    config = ":tsconfig",
+    tsc = "@pnpm//node_modules/@typescript/native:tsc",
+    typescript = "@pnpm//node_modules/@typescript/native",
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+)
+
+js_tsconfig(
+    name = "tsconfig",
+    testonly = True,
+    srcs = glob(["src/**/*.ts"]),
+    compiler_options = {
+        "noEmit": True,
+    },
+    config = "tsconfig.json",
+    extends = ["//:base_tsconfig"],
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+    deps = [
+        "//js/lib",
+        "@pnpm//node_modules/vitest",
+    ],
+)

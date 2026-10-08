@@ -1,0 +1,56 @@
+import "package.pkl" as hk
+import "package://github.com/jdx/hk/releases/download/v2.0.0/hk@2.0.0#/Builtins.pkl"
+
+// Explicit LF strings keep the fixture bytes identical on every host. Pkl's
+// multiline literals otherwise include a leading newline on Windows.
+local formatted = "load(\"@rules_cc//cc:cc_library.bzl\", \"cc_library\")\n\ncc_library(\n    name = \"foo\",\n    srcs = [\"Foo.cc\"],\n)\n"
+local unformatted = "load(\"@rules_cc//cc:cc_library.bzl\",   \"cc_library\")\ncc_library( name=\"foo\",srcs=[\"Foo.cc\"])\n"
+local missingLoad = "cc_library(\n    name = \"foo\",\n    srcs = [\"Foo.cc\"],\n)\n"
+
+format: hk.Step = (Builtins.buildifier_format) {
+  tests = new Mapping<String, hk.StepTest> {
+    ["check bad file"] { write { ["BUILD.bazel"] = unformatted }
+      tmpdir = true
+      expect { code = 4
+      files { ["BUILD.bazel"] = unformatted } } }
+    ["check good file"] { write { ["BUILD.bazel"] = formatted }
+      tmpdir = true
+      expect { files { ["BUILD.bazel"] = formatted } } }
+    ["fix bad file"] {
+      write { ["BUILD.bazel"] = unformatted }
+      run = "fix"
+      tmpdir = true
+      expect { files { ["BUILD.bazel"] = formatted } }
+    }
+    ["fix good file"] {
+      write { ["BUILD.bazel"] = formatted }
+      run = "fix"
+      tmpdir = true
+      expect { files { ["BUILD.bazel"] = formatted } }
+    }
+  }
+}
+
+lint: hk.Step = (Builtins.buildifier_lint) {
+  tests = new Mapping<String, hk.StepTest> {
+    ["check bad file"] { write { ["BUILD.bazel"] = missingLoad }
+      tmpdir = true
+      expect { code = 4
+      files { ["BUILD.bazel"] = missingLoad } } }
+    ["check good file"] { write { ["BUILD.bazel"] = formatted }
+      tmpdir = true
+      expect { files { ["BUILD.bazel"] = formatted } } }
+    ["fix bad file"] {
+      write { ["BUILD.bazel"] = missingLoad }
+      run = "fix"
+      tmpdir = true
+      expect { files { ["BUILD.bazel"] = formatted } }
+    }
+    ["fix good file"] {
+      write { ["BUILD.bazel"] = formatted }
+      run = "fix"
+      tmpdir = true
+      expect { files { ["BUILD.bazel"] = formatted } }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+import { defineConfig } from "vitest/config";
+
+// Test settings every package of the fixture shares.
+export default defineConfig({ test: { environment: "node", include: ["src/**/*.test.ts"] } });

@@ -1,0 +1,8 @@
+{
+  "name": "@fixture/all-app",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@fixture/all-library": "workspace:*"
+  }
+}

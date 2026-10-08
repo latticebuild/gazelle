@@ -1,0 +1,3 @@
+# GitHub hosted macOS 27 preview label, newer than the pinned linter.
+self-hosted-runner:
+  labels: [xcode-27]

@@ -1,0 +1,19 @@
+load("@custom_js//js:defs.bzl", "js_package", "js_storybook")
+
+js_package(
+    name = "js",
+    package_name = "@fixture/all-stories",
+    srcs = [],
+    package = "package.json",
+    visibility = ["//visibility:public"],
+)
+
+js_storybook(
+    name = "storybook",
+    testonly = True,
+    srcs = [".storybook/main.ts"],
+    config_dir = ".storybook",
+    storybook = "@npm//node_modules/storybook:bin",
+    visibility = ["//:__subpackages__"],
+    deps = ["@npm//node_modules/@sveltejs/vite-plugin-svelte"],
+)

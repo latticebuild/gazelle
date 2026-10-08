@@ -1,0 +1,86 @@
+diff --git a/dist/CatalogCounselor.js b/dist/CatalogCounselor.js
+index 6f73b4c..253c55a 100644
+--- a/dist/CatalogCounselor.js
++++ b/dist/CatalogCounselor.js
+@@ -3,7 +3,7 @@ import { ROOT_WORKSPACE_NAME } from './constants.js';
+ import { JsonCatalogPeeker } from './JsonCatalogPeeker.js';
+ import { PackagePeeker } from './PackagePeeker.js';
+ import { extractCatalogReferences, getOverrideCatalogReferences, parseCatalog, } from './util/catalog.js';
+-import { extname } from './util/path.js';
++import { dirname, extname } from './util/path.js';
+ import { YamlCatalogPeeker } from './YamlCatalogPeeker.js';
+ export class CatalogCounselor {
+     filePath;
+@@ -53,6 +53,9 @@ export class CatalogCounselor {
+     }
+     async settleCatalogIssues(options) {
+         const filePath = this.filePath;
++        // Only the containing workspace can prove an inherited catalog entry
++        // unused or safely fix it. Local references remain fully validated.
++        if (dirname(filePath) !== options.cwd) return this.referenceIssues;
+         const workspace = ROOT_WORKSPACE_NAME;
+         const catalogIssues = [];
+         const overrideReferenceIssues = [];
+diff --git a/dist/IssueCollector.js b/dist/IssueCollector.js
+index eeb9dfb..b1d7e65 100644
+--- a/dist/IssueCollector.js
++++ b/dist/IssueCollector.js
+@@ -153,7 +153,7 @@ export class IssueCollector {
+     addConfigurationHint(issue) {
+         if (this.selectedWorkspaces) {
+             const workspaceName = issue.workspaceName ?? ROOT_WORKSPACE_NAME;
+-            if (workspaceName === ROOT_WORKSPACE_NAME || !this.selectedWorkspaces.has(workspaceName))
++            if (!this.selectedWorkspaces.has(workspaceName))
+                 return;
+         }
+         const key = `${issue.workspaceName}::${issue.type}::${issue.identifier}`;
+diff --git a/dist/cli.js b/dist/cli.js
+index 3f9fe0f..d6ac64d 100644
+--- a/dist/cli.js
++++ b/dist/cli.js
+@@ -37,7 +37,9 @@ const main = async () => {
+             return;
+         const preprocess = await createPreprocessor(options.preprocessor);
+         const finalData = await preprocess(toReporterOptions(options, results, args));
+-        if (options.isFix)
++        // A configuration that failed to load leaves its entries out of the
++        // graph, so fixes would remove code and dependencies that are in use.
++        if (options.isFix && !results.hasConfigLoadErrors)
+             await fix(finalData.issues, finalData.counters, options);
+         await runReporters(args.reporter ?? ['symbols'], finalData);
+         const totalErrorCount = Object.keys(finalData.report)
+diff --git a/dist/util/catalog.js b/dist/util/catalog.js
+index 2b07ba2..e14d783 100644
+--- a/dist/util/catalog.js
++++ b/dist/util/catalog.js
+@@ -1,7 +1,7 @@
+-import { isFile } from './fs.js';
++import { findFile, isFile } from './fs.js';
+ import { _load } from './loader.js';
+ import { getPackageNameFromModuleSpecifier } from './modules.js';
+-import { basename, join } from './path.js';
++import { basename, dirname, join } from './path.js';
+ export const DEFAULT_CATALOG = 'default';
+ const CATALOG_PROTOCOL = '@catalog:';
+ export const getCatalogReference = (specifier) => {
+@@ -17,6 +17,20 @@ export const getCatalogReference = (specifier) => {
+     };
+ };
+ export const getCatalogContainer = async (cwd, manifest, manifestPath, pnpmWorkspacePath, pnpmWorkspace) => {
++    // A package-local invocation still resolves catalog references from its
++    // containing workspace. Preserve local providers, including empty catalogs.
++    if (!pnpmWorkspacePath && !isFile(cwd, '.yarnrc.yml') &&
++        !manifest.catalog && !manifest.catalogs &&
++        !manifest.workspaces?.catalog && !manifest.workspaces?.catalogs) {
++        for (let directory = dirname(cwd);; directory = dirname(directory)) {
++            const inheritedPnpm = findFile(directory, 'pnpm-workspace.yaml');
++            if (inheritedPnpm || isFile(directory, '.yarnrc.yml')) {
++                return getCatalogContainer(directory, {}, join(directory, 'package.json'),
++                    inheritedPnpm, inheritedPnpm ? await _load(inheritedPnpm) : undefined);
++            }
++            if (directory === dirname(directory)) break;
++        }
++    }
+     const filePath = pnpmWorkspacePath ?? (isFile(cwd, '.yarnrc.yml') ? join(cwd, '.yarnrc.yml') : manifestPath);
+     const yarnWorkspace = basename(filePath) === '.yarnrc.yml' ? await _load(filePath) : undefined;
+     const catalog = pnpmWorkspace?.catalog ??

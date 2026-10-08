@@ -1,0 +1,483 @@
+{
+  "version": 3,
+  "repository": "pnpm",
+  "platforms": [
+    [
+      "darwin",
+      "arm64",
+      ""
+    ],
+    [
+      "linux",
+      "x64",
+      "glibc"
+    ]
+  ],
+  "workspace": {
+    "packages": [
+      "js/app",
+      "js/lib"
+    ]
+  },
+  "packages": {
+    "": {
+      "name": "fixture",
+      "target": "",
+      "bindings": {
+        "@typescript/native": {
+          "label": "@pnpm//node_modules/@typescript/native",
+          "name": "@typescript/native",
+          "path": "node_modules/@typescript/native",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "tsc": "@pnpm//node_modules/@typescript/native:tsc"
+          }
+        },
+        "@sveltejs/kit": {
+          "label": "@pnpm//node_modules/@sveltejs/kit",
+          "name": "@sveltejs/kit",
+          "path": "node_modules/@sveltejs/kit",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "svelte-kit": "@pnpm//node_modules/@sveltejs/kit:bin"
+          }
+        },
+        "vite": {
+          "label": "@pnpm//node_modules/vite",
+          "name": "vite",
+          "path": "node_modules/vite",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "vite": "@pnpm//node_modules/vite:bin"
+          }
+        },
+        "vitest": {
+          "label": "@pnpm//node_modules/vitest",
+          "name": "vitest",
+          "path": "node_modules/vitest",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "vitest": "@pnpm//node_modules/vitest:bin"
+          }
+        },
+        "storybook": {
+          "label": "@pnpm//node_modules/storybook",
+          "name": "storybook",
+          "path": "node_modules/storybook",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "storybook": "@pnpm//node_modules/storybook:bin"
+          }
+        },
+        "oxlint": {
+          "label": "@pnpm//node_modules/oxlint",
+          "name": "oxlint",
+          "path": "node_modules/oxlint",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "oxlint": "@pnpm//node_modules/oxlint:bin"
+          }
+        },
+        "oxfmt": {
+          "label": "@pnpm//node_modules/oxfmt",
+          "name": "oxfmt",
+          "path": "node_modules/oxfmt",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "oxfmt": "@pnpm//node_modules/oxfmt:bin"
+          }
+        },
+        "prettier": {
+          "label": "@pnpm//node_modules/prettier",
+          "name": "prettier",
+          "path": "node_modules/prettier",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "prettier": "@pnpm//node_modules/prettier:bin"
+          }
+        },
+        "knip": {
+          "label": "@pnpm//node_modules/knip",
+          "name": "knip",
+          "path": "node_modules/knip",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "knip": "@pnpm//node_modules/knip:bin"
+          }
+        },
+        "typescript": {
+          "label": "@pnpm//node_modules/typescript",
+          "name": "typescript",
+          "path": "node_modules/typescript",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {}
+        },
+        "@vitest/coverage-v8": {
+          "label": "@pnpm//node_modules/@vitest/coverage-v8",
+          "name": "@vitest/coverage-v8",
+          "path": "node_modules/@vitest/coverage-v8",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {}
+        }
+      }
+    },
+    "js/app": {
+      "name": "@fixture/app",
+      "target": "",
+      "bindings": {
+        "@fixture/lib": {
+          "label": "//js/lib",
+          "name": "@fixture/lib",
+          "path": "js/lib",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": true,
+          "binaries": {}
+        },
+        "vite": {
+          "label": "@pnpm//node_modules/vite",
+          "name": "vite",
+          "path": "node_modules/vite",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "vite": "@pnpm//node_modules/vite:bin"
+          }
+        },
+        "vitest": {
+          "label": "@pnpm//node_modules/vitest",
+          "name": "vitest",
+          "path": "node_modules/vitest",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "vitest": "@pnpm//node_modules/vitest:bin"
+          }
+        },
+        "@typescript/native": {
+          "label": "@pnpm//node_modules/@typescript/native",
+          "name": "@typescript/native",
+          "path": "node_modules/@typescript/native",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "tsc": "@pnpm//node_modules/@typescript/native:tsc"
+          }
+        },
+        "@sveltejs/kit": {
+          "label": "@pnpm//node_modules/@sveltejs/kit",
+          "name": "@sveltejs/kit",
+          "path": "node_modules/@sveltejs/kit",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "svelte-kit": "@pnpm//node_modules/@sveltejs/kit:bin"
+          }
+        },
+        "storybook": {
+          "label": "@pnpm//node_modules/storybook",
+          "name": "storybook",
+          "path": "node_modules/storybook",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "storybook": "@pnpm//node_modules/storybook:bin"
+          }
+        },
+        "oxlint": {
+          "label": "@pnpm//node_modules/oxlint",
+          "name": "oxlint",
+          "path": "node_modules/oxlint",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "oxlint": "@pnpm//node_modules/oxlint:bin"
+          }
+        },
+        "oxfmt": {
+          "label": "@pnpm//node_modules/oxfmt",
+          "name": "oxfmt",
+          "path": "node_modules/oxfmt",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "oxfmt": "@pnpm//node_modules/oxfmt:bin"
+          }
+        },
+        "prettier": {
+          "label": "@pnpm//node_modules/prettier",
+          "name": "prettier",
+          "path": "node_modules/prettier",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "prettier": "@pnpm//node_modules/prettier:bin"
+          }
+        },
+        "knip": {
+          "label": "@pnpm//node_modules/knip",
+          "name": "knip",
+          "path": "node_modules/knip",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "knip": "@pnpm//node_modules/knip:bin"
+          }
+        },
+        "typescript": {
+          "label": "@pnpm//node_modules/typescript",
+          "name": "typescript",
+          "path": "node_modules/typescript",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {}
+        },
+        "@vitest/coverage-v8": {
+          "label": "@pnpm//node_modules/@vitest/coverage-v8",
+          "name": "@vitest/coverage-v8",
+          "path": "node_modules/@vitest/coverage-v8",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {}
+        }
+      }
+    },
+    "js/lib": {
+      "name": "@fixture/lib",
+      "target": "lib",
+      "bindings": {
+        "vitest": {
+          "label": "@pnpm//node_modules/vitest",
+          "name": "vitest",
+          "path": "node_modules/vitest",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "vitest": "@pnpm//node_modules/vitest:bin"
+          }
+        },
+        "@typescript/native": {
+          "label": "@pnpm//node_modules/@typescript/native",
+          "name": "@typescript/native",
+          "path": "node_modules/@typescript/native",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "tsc": "@pnpm//node_modules/@typescript/native:tsc"
+          }
+        },
+        "@sveltejs/kit": {
+          "label": "@pnpm//node_modules/@sveltejs/kit",
+          "name": "@sveltejs/kit",
+          "path": "node_modules/@sveltejs/kit",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "svelte-kit": "@pnpm//node_modules/@sveltejs/kit:bin"
+          }
+        },
+        "vite": {
+          "label": "@pnpm//node_modules/vite",
+          "name": "vite",
+          "path": "node_modules/vite",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "vite": "@pnpm//node_modules/vite:bin"
+          }
+        },
+        "storybook": {
+          "label": "@pnpm//node_modules/storybook",
+          "name": "storybook",
+          "path": "node_modules/storybook",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "storybook": "@pnpm//node_modules/storybook:bin"
+          }
+        },
+        "oxlint": {
+          "label": "@pnpm//node_modules/oxlint",
+          "name": "oxlint",
+          "path": "node_modules/oxlint",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "oxlint": "@pnpm//node_modules/oxlint:bin"
+          }
+        },
+        "oxfmt": {
+          "label": "@pnpm//node_modules/oxfmt",
+          "name": "oxfmt",
+          "path": "node_modules/oxfmt",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "oxfmt": "@pnpm//node_modules/oxfmt:bin"
+          }
+        },
+        "prettier": {
+          "label": "@pnpm//node_modules/prettier",
+          "name": "prettier",
+          "path": "node_modules/prettier",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "prettier": "@pnpm//node_modules/prettier:bin"
+          }
+        },
+        "knip": {
+          "label": "@pnpm//node_modules/knip",
+          "name": "knip",
+          "path": "node_modules/knip",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {
+            "knip": "@pnpm//node_modules/knip:bin"
+          }
+        },
+        "typescript": {
+          "label": "@pnpm//node_modules/typescript",
+          "name": "typescript",
+          "path": "node_modules/typescript",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {}
+        },
+        "@vitest/coverage-v8": {
+          "label": "@pnpm//node_modules/@vitest/coverage-v8",
+          "name": "@vitest/coverage-v8",
+          "path": "node_modules/@vitest/coverage-v8",
+          "platforms": [
+            "@//gazelle/platforms:darwin_arm64",
+            "@//gazelle/platforms:linux_x64_glibc"
+          ],
+          "workspace": false,
+          "binaries": {}
+        }
+      }
+    }
+  },
+  "installed": {
+    "@pnpm//node_modules/vite": "node_modules/vite",
+    "@pnpm//node_modules/vitest": "node_modules/vitest",
+    "@pnpm//node_modules/@typescript/native": "node_modules/@typescript/native",
+    "@pnpm//node_modules/@sveltejs/kit": "node_modules/@sveltejs/kit",
+    "@pnpm//node_modules/storybook": "node_modules/storybook",
+    "@pnpm//node_modules/oxlint": "node_modules/oxlint",
+    "@pnpm//node_modules/oxfmt": "node_modules/oxfmt",
+    "@pnpm//node_modules/prettier": "node_modules/prettier",
+    "@pnpm//node_modules/knip": "node_modules/knip",
+    "@pnpm//node_modules/typescript": "node_modules/typescript",
+    "@pnpm//node_modules/@vitest/coverage-v8": "node_modules/@vitest/coverage-v8"
+  }
+}

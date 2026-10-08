@@ -1,0 +1,9 @@
+{
+  "name": "@fixture/all-site",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@sveltejs/kit": "3.0.0",
+    "svelte": "5.57.1"
+  }
+}

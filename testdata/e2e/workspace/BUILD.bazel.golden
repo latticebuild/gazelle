@@ -1,0 +1,18 @@
+load("@custom_js//js:defs.bzl", "js_tsconfig")
+
+exports_files(
+    ["tsconfig.base.json"],
+    visibility = ["//js:__subpackages__"],
+)
+
+# Compiler options the packages extend; it compiles nothing itself.
+js_tsconfig(
+    name = "base_tsconfig",
+    srcs = [],  # keep
+    compiler_options = {
+        "declaration": True,
+        "sourceMap": True,
+    },
+    config = "tsconfig.base.json",
+    visibility = ["//js:__subpackages__"],
+)

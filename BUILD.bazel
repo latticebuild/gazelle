@@ -1,0 +1,152 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+package(default_visibility = ["//visibility:private"])
+
+exports_files(
+    [
+        ".gitignore",
+        "pnpm-workspace.yaml",
+        "go.mod",
+        "go.sum",
+        "loads.json",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+go_library(
+    name = "gazelle",
+    srcs = [
+        "inventory.go",
+        "language.go",
+        "merge.go",
+        "process.go",
+        "resolve.go",
+        "run.go",
+        "values.go",
+    ],
+    importpath = "github.com/latticebuild/gazelle",
+    target_compatible_with = [],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":protocol",
+        ":protocol_connect",
+        "@com_connectrpc_connect//:connect",
+        "@com_github_bazelbuild_buildtools//build",
+        "@com_github_bmatcuk_doublestar_v4//:doublestar",
+        "@gazelle//config",
+        "@gazelle//language",
+        "@gazelle//repo",
+        "@gazelle//resolve",
+        "@gazelle//v2/cmd/gazelle/update",
+        "@gazelle//v2/label",
+        "@gazelle//v2/rule",
+        "@gazelle//walk",
+        "@latticebuild_graceproc//:graceproc",
+    ],
+)
+
+# The generated protocol stays free of hand-written files, so its libraries
+# are declared here.
+go_library(
+    name = "protocol",
+    srcs = ["generated/gazelle/v1/language.pb.go"],
+    importpath = "github.com/latticebuild/gazelle/generated/gazelle/v1",
+    target_compatible_with = [],
+    deps = [
+        "@org_golang_google_protobuf//reflect/protoreflect",
+        "@org_golang_google_protobuf//runtime/protoimpl",
+    ],
+)
+
+go_library(
+    name = "protocol_connect",
+    srcs = ["generated/gazelle/v1/gazellev1connect/language.connect.go"],
+    importpath = "github.com/latticebuild/gazelle/generated/gazelle/v1/gazellev1connect",
+    target_compatible_with = [],
+    deps = [
+        ":protocol",
+        "@com_connectrpc_connect//:connect",
+    ],
+)
+
+go_test(
+    name = "unit_test",
+    srcs = glob(["*_test.go"]),
+    embed = [":gazelle"],
+    pure = "on",
+    race = "off",
+    target_compatible_with = [],
+    deps = [
+        ":protocol",
+        ":protocol_connect",
+        "@com_connectrpc_connect//:connect",
+        "@com_github_bazelbuild_buildtools//build",
+        "@gazelle//v2/merger",
+        "@gazelle//v2/rule",
+        "@org_golang_google_protobuf//encoding/prototext",
+        "@org_golang_google_protobuf//proto",
+    ],
+)
+
+go_test(
+    name = "unit_race_test",
+    srcs = glob(["*_test.go"]),
+    embed = [":gazelle"],
+    pure = "off",
+    race = "on",
+    target_compatible_with = select({
+        "@platforms//os:windows": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":protocol",
+        ":protocol_connect",
+        "@com_connectrpc_connect//:connect",
+        "@com_github_bazelbuild_buildtools//build",
+        "@gazelle//v2/merger",
+        "@gazelle//v2/rule",
+        "@org_golang_google_protobuf//encoding/prototext",
+        "@org_golang_google_protobuf//proto",
+    ],
+)
+
+# The end-to-end fixture workspace, its goldens and its indexes.
+filegroup(
+    name = "e2e_fixtures",
+    testonly = True,
+    srcs = ["//testdata/e2e:workspace"] + ["//testdata/e2e:workspace.json"],
+    visibility = ["//e2e:__pkg__"],
+)
+
+test_suite(
+    name = "test",
+    tests = [
+        ":unit_test",
+        "//e2e:e2e_test",
+        "//examples:test",
+        "//js:knip_config_test",
+        "//js:knip_production_test",
+        "//js:knip_test",
+        "//js:oxfmt_test",
+        "//js:oxlint_test",
+        "//js:vitest_test",
+    ],
+)
+
+test_suite(
+    name = "race_test",
+    tests = [":unit_race_test"],
+)
+
+filegroup(
+    name = "artifacts",
+    testonly = True,
+    srcs = [
+        "//cmd/gazelle",
+        "//examples:artifacts",
+        "//gazelle:defs",
+        "//js:test_tsc",
+        "//js:tsc",
+        "//js/plugin:lib_tsc",
+    ],
+)

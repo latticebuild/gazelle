@@ -1,0 +1,52 @@
+load("@custom_js//js:defs.bzl", "js_package", "js_vite", "js_vite_config", "js_vitest")
+
+js_package(
+    name = "js",
+    package_name = "@fixture/all-app",
+    srcs = [":vite_build"],
+    package = "package.json",
+    visibility = ["//visibility:public"],
+)
+
+js_vite(
+    name = "vite_build",
+    srcs = [
+        "index.html",
+        "main.ts",
+    ],
+    config = ":vite_config",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+    vite = "@npm//node_modules/vite:bin",
+    deps = ["//library:js"],
+)
+
+js_vite_config(
+    name = "vite_config",
+    config = "vite.config.mjs",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+)
+
+js_vite_config(
+    name = "vitest_config",
+    testonly = True,
+    config = "vitest.config.mjs",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+)
+
+js_vitest(
+    name = "vitest_test",
+    srcs = ["value.test.mjs"],
+    config = ":vitest_config",
+    coverage_provider = "@npm//node_modules/@vitest/coverage-v8",
+    vitest = "@npm//node_modules/vitest:bin",
+    deps = ["@npm//node_modules/vitest"],
+)

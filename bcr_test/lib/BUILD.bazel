@@ -1,0 +1,35 @@
+load("@custom_js//js:defs.bzl", "js_package", "js_tsc", "js_tsconfig")
+
+js_package(
+    name = "js",
+    package_name = "@fixture/ts-library",
+    srcs = [":lib_tsc"],
+    package = "package.json",
+    visibility = ["//visibility:public"],
+)
+
+js_tsc(
+    name = "lib_tsc",
+    config = ":lib_tsconfig",
+    tsc = "@npm//node_modules/@typescript/native:tsc",
+    typescript = "@npm//node_modules/typescript",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+)
+
+js_tsconfig(
+    name = "lib_tsconfig",
+    srcs = glob(["src/**/*.ts"]),
+    compiler_options = {
+        "outDir": "dist",
+        "rootDir": "src",
+    },
+    config = "tsconfig.lib.json",
+    extends = ["//:base_tsconfig"],
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+)

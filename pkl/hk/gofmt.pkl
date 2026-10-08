@@ -1,0 +1,87 @@
+import "package.pkl" as hk
+
+/// `gofmt -s`, passing file names as separate arguments.
+///
+/// The builtin interpolates file names into `sh` scripts, which `cmd.exe`
+/// cannot run and which read a name that starts with `-` as a flag. Structured
+/// commands keep each name one argument, and `--` ends gofmt's flags. The
+/// builtin's `-s` simplification is kept.
+step: hk.Step = new hk.Step {
+  glob = "**/*.go"
+  check = new hk.CommandSpec {
+    command = new hk.Command {
+      argv =
+        List(
+          "nu",
+          "--no-config-file",
+          "-c",
+          """
+          def main [...files: string] {
+            let unformatted = (do --capture-errors { gofmt -s -l -- ...$files } | lines)
+            if not ($unformatted | is-empty) {
+              error make {msg: ($unformatted | str join '\n')}
+            }
+          }
+          """,
+          "--",
+          "{{files}}",
+        )
+    }
+    effect = "read"
+  }
+  fix = new hk.CommandSpec {
+    command = new hk.Command { argv = List("gofmt", "-s", "-w", "--", "{{files}}") }
+    effect = "write"
+  }
+  tests = new Mapping<String, hk.StepTest> {
+    ["reject unformatted Go"] {
+      write { ["main.go"] = "package main\nfunc main(){println(1)}\n" }
+      tmpdir = true
+      expect { code = 1 }
+    }
+    ["reject unsimplified Go"] {
+      write { ["main.go"] = "package main\n\nvar s = []int{1}\nvar t = s[0:len(s)]\n" }
+      tmpdir = true
+      expect { code = 1 }
+    }
+    ["reject invalid Go"] {
+      write { ["main.go"] = "package main\nfunc main(\n" }
+      tmpdir = true
+      expect { code = 2 }
+    }
+    ["accept formatted Go"] {
+      write {
+        ["main.go"] = "package main\n\nfunc main() { println(1) }\n"
+        ["-space & 'quote' $value.go"] = "package main\n\nfunc other() { println(2) }\n"
+      }
+      tmpdir = true
+    }
+    ["format Go"] {
+      write { ["main.go"] = "package main\nfunc main(){println(1)}\n" }
+      run = "fix"
+      tmpdir = true
+      expect { files { ["main.go"] = "package main\n\nfunc main() { println(1) }\n" } }
+    }
+    ["simplify Go"] {
+      write { ["main.go"] = "package main\n\nvar s = []int{1}\nvar t = s[0:len(s)]\n" }
+      run = "fix"
+      tmpdir = true
+      expect { files { ["main.go"] = "package main\n\nvar s = []int{1}\nvar t = s[0:]\n" } }
+    }
+    ["format a Go path with shell characters"] {
+      local const file = "-space & 'quote' $value.go"
+      write {
+        [file] = "package main\nfunc main(){println(1)}\n"
+        ["other.go"] = "package main\nfunc other(){println(2)}\n"
+      }
+      run = "fix"
+      tmpdir = true
+      expect {
+        files {
+          [file] = "package main\n\nfunc main() { println(1) }\n"
+          ["other.go"] = "package main\n\nfunc other() { println(2) }\n"
+        }
+      }
+    }
+  }
+}

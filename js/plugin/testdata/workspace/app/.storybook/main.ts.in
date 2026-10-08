@@ -1,0 +1,4 @@
+export default {
+  framework: import.meta.resolve("@storybook/svelte-vite"),
+  core: { builder: { options: { viteConfigPath: import.meta.resolve("./vite.config.ts") } } },
+};

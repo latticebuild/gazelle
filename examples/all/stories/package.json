@@ -1,0 +1,9 @@
+{
+  "name": "@fixture/all-stories",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@storybook/svelte-vite": "11.0.0-alpha.1",
+    "storybook": "11.0.0-alpha.1"
+  }
+}

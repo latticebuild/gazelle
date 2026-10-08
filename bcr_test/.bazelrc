@@ -1,0 +1,3 @@
+common --enable_bzlmod
+build --enable_runfiles
+test --test_output=errors

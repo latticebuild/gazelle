@@ -1,0 +1,8 @@
+nodeLinker: hoisted
+packages:
+  - library
+  - app
+  - site
+  - stories
+allowBuilds:
+  esbuild: true

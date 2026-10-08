@@ -1,0 +1,10 @@
+[
+  {
+    "kind": "js_tsconfig",
+    "label": "@custom_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_tsc",
+    "label": "@custom_js//js:defs.bzl"
+  }
+]

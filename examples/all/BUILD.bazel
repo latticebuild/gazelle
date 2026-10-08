@@ -1,0 +1,47 @@
+load("@custom_js//js:defs.bzl", "js_tsconfig")
+load("@generator//gazelle:defs.bzl", "gazelle_binary")
+
+# gazelle:ignore
+exports_files([
+    "package.json",
+    "tsconfig.base.json",
+    "loads.json",
+    ".prettierrc.json",
+])
+
+gazelle_binary(
+    name = "gazelle",
+    index = "@npm//:workspace.json",
+    loads = "loads.json",
+    plugin = "@generator//js/plugin:gazelle",
+)
+
+js_tsconfig(
+    name = "base_tsconfig",
+    compiler_options = {"declaration": True},
+    config = "tsconfig.base.json",
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "artifacts",
+    testonly = True,
+    srcs = [
+        "//app:vite_build",
+        "//library:lib_tsc",
+        "//site:tsc",
+        "//stories:storybook",
+    ],
+)
+
+test_suite(
+    name = "test",
+    tests = [
+        "//app:vitest_test",
+        "//library:knip_production_test",
+        "//library:knip_test",
+        "//library:oxfmt_test",
+        "//library:oxlint_test",
+        "//site:prettier_test",
+    ],
+)

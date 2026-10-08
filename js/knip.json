@@ -1,0 +1,13 @@
+{
+  "workspaces": {
+    ".": {},
+    "plugin": {
+      "ignore": ["src/generated/**", "testdata/**"],
+      "project": ["**/*.{ts,svelte}!", "!tests/**!"],
+      "vitest": {
+        "config": ["../vitest.config.ts"]
+      }
+    }
+  },
+  "treatConfigHintsAsErrors": true
+}

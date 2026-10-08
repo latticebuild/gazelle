@@ -1,0 +1,81 @@
+diff --git a/esm/lib/result.js b/esm/lib/result.js
+index 5c78195..a1e6229 100644
+--- a/esm/lib/result.js
++++ b/esm/lib/result.js
+@@ -21,17 +21,9 @@ export function Ok(value) {
+ export function Err(cause) {
+     return {
+         ok: false,
+-        error: cause instanceof Error
+-            ? cause
+-            : new ThrownValueError(String(cause), { cause }),
++        error: cause,
+     };
+ }
+-class ThrownValueError extends Error {
+-    constructor(message, options) {
+-        super(message, options);
+-        this.name = "ThrownValueError";
+-    }
+-}
+ /**
+  * @ignore
+  */
+@@ -40,9 +32,7 @@ export function unbox(result) {
+         return result.value;
+     }
+     else {
+-        throw result.error instanceof ThrownValueError
+-            ? result.error.cause
+-            : result.error;
++        throw result.error;
+     }
+ }
+ const Unit = Object.freeze({ ok: true });
+diff --git a/script/lib/result.js b/script/lib/result.js
+index cd022b0..f771368 100644
+--- a/script/lib/result.js
++++ b/script/lib/result.js
+@@ -26,17 +26,9 @@ function Ok(value) {
+ function Err(cause) {
+     return {
+         ok: false,
+-        error: cause instanceof Error
+-            ? cause
+-            : new ThrownValueError(String(cause), { cause }),
++        error: cause,
+     };
+ }
+-class ThrownValueError extends Error {
+-    constructor(message, options) {
+-        super(message, options);
+-        this.name = "ThrownValueError";
+-    }
+-}
+ /**
+  * @ignore
+  */
+@@ -45,9 +37,7 @@ function unbox(result) {
+         return result.value;
+     }
+     else {
+-        throw result.error instanceof ThrownValueError
+-            ? result.error.cause
+-            : result.error;
++        throw result.error;
+     }
+ }
+ const Unit = Object.freeze({ ok: true });
+diff --git a/types/lib/result.d.ts b/types/lib/result.d.ts
+index f31b901..5d0b25f 100644
+--- a/types/lib/result.d.ts
++++ b/types/lib/result.d.ts
+@@ -15,7 +15,7 @@ export type Result<T> = {
+     value: T;
+ } | {
+     readonly ok: false;
+-    error: Error;
++    error: unknown;
+ };
+ /**
+  * Construct a successful {@link Result}.

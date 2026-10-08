@@ -1,0 +1,40 @@
+load("@custom_js//js:defs.bzl", "js_test", "js_tsconfig")
+load("@generator//gazelle:defs.bzl", "gazelle_binary")
+
+# gazelle:ignore
+exports_files([
+    "package.json",
+    "tsconfig.base.json",
+    "loads.json",
+])
+
+gazelle_binary(
+    name = "gazelle",
+    index = "@npm//:workspace.json",
+    loads = "loads.json",
+    plugin = "@generator//js/plugin:gazelle",
+)
+
+js_tsconfig(
+    name = "base_tsconfig",
+    compiler_options = {"declaration": True},
+    config = "tsconfig.base.json",
+    visibility = ["//visibility:public"],
+)
+
+js_test(
+    name = "compiled_test",
+    srcs = ["compiled.test.mjs"],
+    data = ["//lib:js"],
+)
+
+filegroup(
+    name = "artifacts",
+    testonly = True,
+    srcs = ["//lib:lib_tsc"],
+)
+
+test_suite(
+    name = "test",
+    tests = [":compiled_test"],
+)

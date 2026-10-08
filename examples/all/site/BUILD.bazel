@@ -1,0 +1,95 @@
+load("@custom_js//js:defs.bzl", "js_package", "js_prettier_test", "js_svelte_kit", "js_tsc", "js_tsconfig", "js_vite", "js_vite_config")
+
+# gazelle:js_check js_prettier_test //:.prettierrc.json
+js_package(
+    name = "js",
+    package_name = "@fixture/all-site",
+    srcs = [],
+    package = "package.json",
+    visibility = ["//visibility:public"],
+)
+
+js_vite(
+    name = "vite_build",
+    config = ":vite_config",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+    vite = "@npm//node_modules/vite:bin",
+)
+
+js_vite_config(
+    name = "vite_config",
+    config = "vite.config.js",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+    deps = ["@npm//node_modules/@sveltejs/kit"],
+)
+
+js_prettier_test(
+    name = "prettier_test",
+    srcs = glob(["src/**/*.svelte"]),
+    data = ["//:.prettierrc.json"],
+    paths = ["src/**/*.svelte"],
+    prettier = "@npm//node_modules/prettier:bin",
+    deps = ["@npm//node_modules/prettier-plugin-svelte"],  # keep
+)
+
+js_tsc(
+    name = "tsc",
+    config = ":tsconfig",
+    tsc = "@npm//node_modules/@typescript/native:tsc",
+    typescript = "@npm//node_modules/typescript",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+)
+
+js_tsconfig(
+    name = "tsconfig",
+    srcs = glob(["src/**/*.ts"]),
+    compiler_options = {
+        "checkJs": False,
+    },
+    config = "tsconfig.json",
+    extends = [":kit"],
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+)
+
+js_svelte_kit(
+    name = "kit",
+    srcs = glob(
+        [
+            "src/*",
+            "src/lib/**",
+            "src/routes/**",
+            "static/**",
+        ],
+        allow_empty = True,
+        exclude = ["**/.*"],
+    ),
+    compiler_options = {
+        "allowJs": True,
+        "checkJs": True,
+        "noEmit": True,
+    },
+    config = "vite.config.js",
+    kit = "@npm//node_modules/@sveltejs/kit:svelte-kit",
+    tool_deps = ["@npm//node_modules/@sveltejs/kit"],
+    typescript = "@npm//node_modules/typescript",
+    visibility = [
+        "//:__subpackages__",
+        "@npm//:__subpackages__",
+    ],
+    deps = [
+        "@npm//node_modules/@sveltejs/kit",
+        "@npm//node_modules/svelte",
+    ],
+)

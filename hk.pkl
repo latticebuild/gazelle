@@ -1,0 +1,16 @@
+amends "package://github.com/jdx/hk/releases/download/v2.0.0/hk@2.0.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.0.0/hk@2.0.0#/Builtins.pkl"
+import "pkl/hk/gofmt.pkl"
+import "pkl/hk/buildifier.pkl"
+min_hk_version = "2.0.0"
+hide_warnings = List("missing-profiles")
+steps {
+  ["bom"] = (Builtins.byte_order_marker) { exclude = List("generated/**", "js/plugin/src/generated/**") }
+  ["merge-conflicts"] = Builtins.check_merge_conflict
+  ["newlines"] = (Builtins.newlines) { exclude = List("generated/**", "js/plugin/src/generated/**") }
+  ["trailing-whitespace"] = (Builtins.trailing_whitespace) { exclude = List("generated/**", "js/plugin/src/generated/**") }
+  ["buildifier-format"] = buildifier.format
+  ["buildifier-lint"] = (buildifier.lint) { depends = "buildifier-format" }
+  ["gofmt"] = (gofmt.step) { exclude = List("generated/**", "js/plugin/src/generated/**") }
+  ["actionlint"] = Builtins.actionlint
+}

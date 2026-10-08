@@ -1,0 +1,224 @@
+load("@latticebuild_js//js:defs.bzl", "js_knip_test", "js_oxfmt_test", "js_oxlint_test", "js_tsc", "js_tsconfig", "js_vite_config", "js_vitest")
+
+package(default_visibility = ["//:__pkg__"])
+
+# gazelle:ignore
+
+_SOURCES = ["//js/plugin:development_sources"]
+
+_CONFIGS = [
+    "package.json",
+    "knip.json",
+    "tsconfig.json",
+    "tsconfig.base.json",
+    "tsconfig.test.json",
+    "vitest.config.ts",
+    "//js/plugin:config_files",
+]
+
+_DEPS = ["//js/plugin:js"] + [
+    "@pnpm//node_modules/" + package
+    for package in [
+        "@bufbuild/protobuf",
+        "@connectrpc/connect",
+        "@connectrpc/connect-node",
+        "@types/node",
+        "@typescript/native",
+        "@vercel/nft",
+        "effection",
+        "resolve.exports",
+        "svelte",
+        "typescript",
+        "vitest",
+        "zod",
+    ]
+]
+
+js_vitest(
+    name = "vitest_test",
+    srcs = ["//js/plugin:lib_tsc"] + _SOURCES,
+    config = ":vitest_config",
+    coverage_provider = "@pnpm//node_modules/@vitest/coverage-v8",
+    data = ["//js/plugin:fixtures"],
+    vitest = "@pnpm//node_modules/vitest:bin",
+)
+
+js_vite_config(
+    name = "vitest_config",
+    testonly = True,
+    config = "vitest.config.ts",
+    deps = [
+        ":test_tsconfig",
+        "@pnpm//node_modules/@types/node",
+        "@pnpm//node_modules/@typescript/native",
+        "@pnpm//node_modules/vitest",
+    ],
+)
+
+js_tsc(
+    name = "tsc",
+    testonly = True,
+    config = ":tsconfig",
+    tsc = "@pnpm//node_modules/@typescript/native:tsc",
+    typescript = "@pnpm//node_modules/typescript",
+)
+
+js_tsc(
+    name = "test_tsc",
+    testonly = True,
+    config = ":test_tsconfig",
+    tsc = "@pnpm//node_modules/@typescript/native:tsc",
+    typescript = "@pnpm//node_modules/typescript",
+)
+
+js_tsconfig(
+    name = "tsconfig",
+    testonly = True,
+    srcs = ["vitest.config.ts"] + _SOURCES,
+    compiler_options = {
+        "declaration": True,
+        "declarationMap": True,
+        "noEmit": True,
+        "outDir": "plugin/dist",
+        "resolveJsonModule": True,
+        "sourceMap": True,
+    },
+    config = "tsconfig.json",
+    data = [
+        "tsconfig.base.json",
+        "tsconfig.test.json",
+        "//js/plugin:config_files",
+    ],
+    deps = _DEPS,
+)
+
+js_tsconfig(
+    name = "test_tsconfig",
+    testonly = True,
+    srcs = ["vitest.config.ts"] + _SOURCES,
+    compiler_options = {
+        "declaration": True,
+        "declarationMap": True,
+        "noEmit": True,
+        "outDir": "plugin/dist",
+        "resolveJsonModule": True,
+        "sourceMap": True,
+        "rootDir": ".",
+    },
+    config = "tsconfig.test.json",
+    data = [
+        "tsconfig.base.json",
+        "tsconfig.test.json",
+        "//js/plugin:config_files",
+    ],
+    deps = _DEPS,
+)
+
+js_oxlint_test(
+    name = "oxlint_test",
+    srcs = _SOURCES + _CONFIGS + ["//js/plugin:fixtures"],
+    data = [
+        ".oxlintrc.json",
+        "//:.gitignore",
+    ],
+    # The native linter searches package-local .bin; the installed graph is hoisted.
+    env = select({
+        "@latticebuild_js//js/platforms:darwin_arm64": {"OXLINT_TSGOLINT_PATH": "../node_modules/@oxlint-tsgolint/darwin-arm64/tsgolint"},
+        "@latticebuild_js//js/platforms:darwin_x64": {"OXLINT_TSGOLINT_PATH": "../node_modules/@oxlint-tsgolint/darwin-x64/tsgolint"},
+        "@latticebuild_js//js/platforms:linux_arm64_glibc": {"OXLINT_TSGOLINT_PATH": "../node_modules/@oxlint-tsgolint/linux-arm64/tsgolint"},
+        "@latticebuild_js//js/platforms:linux_arm64_musl": {"OXLINT_TSGOLINT_PATH": "../node_modules/@oxlint-tsgolint/linux-arm64/tsgolint"},
+        "@latticebuild_js//js/platforms:linux_x64_glibc": {"OXLINT_TSGOLINT_PATH": "../node_modules/@oxlint-tsgolint/linux-x64/tsgolint"},
+        "@latticebuild_js//js/platforms:linux_x64_musl": {"OXLINT_TSGOLINT_PATH": "../node_modules/@oxlint-tsgolint/linux-x64/tsgolint"},
+        "@latticebuild_js//js/platforms:win32_arm64": {"OXLINT_TSGOLINT_PATH": "../node_modules/@oxlint-tsgolint/win32-arm64/tsgolint.exe"},
+        "@latticebuild_js//js/platforms:win32_x64": {"OXLINT_TSGOLINT_PATH": "../node_modules/@oxlint-tsgolint/win32-x64/tsgolint.exe"},
+    }),
+    oxlint = "@pnpm//node_modules/oxlint:bin",
+    deps = [
+        ":test_tsconfig",
+        ":tsconfig",
+        "//js/plugin:lib_tsconfig",
+        "@pnpm//node_modules/oxlint-tsgolint",
+    ],
+)
+
+js_oxfmt_test(
+    name = "oxfmt_test",
+    srcs = _SOURCES + _CONFIGS + ["//js/plugin:fixtures"],
+    data = [
+        ".oxfmtrc.json",
+        "//:.gitignore",
+    ],
+    oxfmt = "@pnpm//node_modules/oxfmt:bin",
+)
+
+js_knip_test(
+    name = "knip_test",
+    srcs = _SOURCES + _CONFIGS + ["//js/plugin:fixtures"],
+    data = [
+        "//:.gitignore",
+        "//:pnpm-workspace.yaml",
+    ],
+    knip = "@pnpm//node_modules/knip:bin",
+    production = False,
+    workspace = "@latticebuild/gazelle-js",
+    deps = [
+        ":test_tsconfig",
+        ":tsconfig",
+        ":vitest_config",
+    ] + _DEPS + [
+        "@pnpm//node_modules/@vitest/coverage-v8",
+        "@pnpm//node_modules/knip",
+        "@pnpm//node_modules/oxfmt",
+        "@pnpm//node_modules/oxlint",
+        "@pnpm//node_modules/oxlint-tsgolint",
+        "@pnpm//node_modules/vite",
+    ],
+)
+
+js_knip_test(
+    name = "knip_production_test",
+    srcs = _SOURCES + _CONFIGS + ["//js/plugin:fixtures"],
+    data = [
+        "//:.gitignore",
+        "//:pnpm-workspace.yaml",
+    ],
+    knip = "@pnpm//node_modules/knip:bin",
+    production = True,
+    workspace = "@latticebuild/gazelle-js",
+    deps = [
+        ":test_tsconfig",
+        ":tsconfig",
+        ":vitest_config",
+    ] + _DEPS + [
+        "@pnpm//node_modules/@vitest/coverage-v8",
+        "@pnpm//node_modules/knip",
+        "@pnpm//node_modules/oxfmt",
+        "@pnpm//node_modules/oxlint",
+        "@pnpm//node_modules/oxlint-tsgolint",
+        "@pnpm//node_modules/vite",
+    ],
+)
+
+js_knip_test(
+    name = "knip_config_test",
+    srcs = _SOURCES + _CONFIGS + ["//js/plugin:fixtures"],
+    data = [
+        "//:.gitignore",
+        "//:pnpm-workspace.yaml",
+    ],
+    knip = "@pnpm//node_modules/knip:bin",
+    production = False,
+    workspace = ".",
+    deps = [
+        ":test_tsconfig",
+        ":tsconfig",
+        ":vitest_config",
+    ] + _DEPS + [
+        "@pnpm//node_modules/@vitest/coverage-v8",
+        "@pnpm//node_modules/knip",
+        "@pnpm//node_modules/oxfmt",
+        "@pnpm//node_modules/oxlint",
+        "@pnpm//node_modules/oxlint-tsgolint",
+        "@pnpm//node_modules/vite",
+    ],
+)

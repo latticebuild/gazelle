@@ -1,0 +1,74 @@
+load("@custom_js//js:defs.bzl", "js_package", "js_tsc", "js_tsconfig", "js_vite_config")
+
+js_package(
+    name = "lib",
+    package_name = "@fixture/lib",
+    srcs = [":lib_tsc"],
+    visibility = ["//js:__subpackages__"],
+)
+
+js_tsc(
+    name = "lib_tsc",
+    config = ":lib_tsconfig",
+    tsc = "@pnpm//node_modules/@typescript/native:tsc",
+    typescript = "@pnpm//node_modules/typescript",
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+)
+
+js_tsconfig(
+    name = "lib_tsconfig",
+    srcs = glob(["src/**/*.ts"]),
+    compiler_options = {
+        "outDir": "dist",
+        "rootDir": "src",
+    },
+    config = "tsconfig.lib.json",
+    extends = ["//:base_tsconfig"],
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+)
+
+js_tsc(
+    name = "tsc",
+    testonly = True,
+    config = ":tsconfig",
+    tsc = "@pnpm//node_modules/@typescript/native:tsc",
+    typescript = "@pnpm//node_modules/typescript",
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+)
+
+js_tsconfig(
+    name = "tsconfig",
+    testonly = True,
+    srcs = ["vitest.config.ts"] + glob(["src/**/*.ts"]),
+    compiler_options = {
+        "noEmit": True,
+        "rootDir": ".",
+    },
+    config = "tsconfig.json",
+    extends = [":lib_tsconfig"],
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+    deps = ["@pnpm//node_modules/vitest"],
+)
+
+js_vite_config(
+    name = "vitest_config",
+    testonly = True,
+    config = "vitest.config.ts",
+    visibility = [
+        "//:__subpackages__",
+        "@pnpm//:__subpackages__",
+    ],
+    deps = ["@pnpm//node_modules/vitest"],
+)

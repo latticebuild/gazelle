@@ -1,0 +1,9 @@
+{
+  "extends": "./plugin/tsconfig.lib.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true
+  },
+  "include": ["plugin/src/**/*.ts", "plugin/tests/**/*.ts", "vitest.config.ts"],
+  "exclude": []
+}

@@ -1,0 +1,10 @@
+load("@custom_js//js:defs.bzl", "js_vitest")
+
+# gazelle:js_typescript @pnpm//node_modules/@typescript/native
+
+js_vitest(
+    name = "vitest_test",
+    size = "small",
+    srcs = glob(["src/**/*.test.ts"]),
+    config = ":vitest_config",
+)

@@ -1,0 +1,3 @@
+{
+  "ignorePatterns": ["plugin/src/generated/**", "plugin/testdata/**"]
+}

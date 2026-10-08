@@ -1,0 +1,16 @@
+exports_files(
+    [
+        "loads.json",
+        "workspace.json",
+    ],
+    visibility = [
+        "//:__pkg__",
+        "//e2e:__pkg__",
+    ],
+)
+
+filegroup(
+    name = "workspace",
+    srcs = glob(["workspace/**"]),
+    visibility = ["//:__pkg__"],
+)

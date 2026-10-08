@@ -1,0 +1,23 @@
+load("@custom_js//js:defs.bzl", "js_package")
+load("@custom_js//js:defs.bzl", "js_tsc", "js_tsconfig")
+
+js_package(
+    name = "lib",
+    package_name = "@fixture/lib",
+    srcs = [":lib_tsc"],
+    visibility = ["//js:__subpackages__"],
+)
+
+# tsconfig.test.json was deleted.
+js_tsconfig(
+    name = "test_tsconfig",
+    testonly = True,
+    srcs = glob(["src/**/*.ts"]),
+    config = "tsconfig.test.json",
+)
+
+js_tsc(
+    name = "test_tsc",
+    testonly = True,
+    config = ":test_tsconfig",
+)

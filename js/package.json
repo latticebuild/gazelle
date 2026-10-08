@@ -1,0 +1,14 @@
+{
+  "name": "@latticebuild/gazelle-js-checks",
+  "private": true,
+  "license": "Apache-2.0",
+  "workspaces": [
+    "plugin"
+  ],
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "26.6.4",
+    "vitest": "5.0.3"
+  },
+  "packageManager": "pnpm@12.4.2"
+}

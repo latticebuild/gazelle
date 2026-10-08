@@ -1,0 +1,8 @@
+import type { ViteUserConfig } from "vitest/config";
+
+export default {
+  test: {
+    include: ["src/**/*.test.ts"],
+    typecheck: { enabled: true, tsconfig: "tsconfig.test.json" },
+  },
+} satisfies ViteUserConfig;

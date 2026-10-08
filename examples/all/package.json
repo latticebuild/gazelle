@@ -1,0 +1,28 @@
+{
+  "name": "@fixture/all-consumer",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@12.4.2",
+  "devDependencies": {
+    "effection": "4.2.0",
+    "typescript": "6.0.3",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "vite": "8.3.2",
+    "vitest": "5.0.3",
+    "@vitest/coverage-v8": "5.0.3",
+    "@vitest/browser-playwright": "5.0.3",
+    "playwright": "1.64.0-alpha-1790635538000",
+    "oxlint": "1.86.0",
+    "svelte": "5.57.1",
+    "@sveltejs/kit": "3.0.0",
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "playwright-core": "1.64.0-alpha-1790635538000",
+    "storybook": "11.0.0-alpha.1",
+    "@storybook/svelte-vite": "11.0.0-alpha.1",
+    "oxfmt": "0.71.0",
+    "prettier": "3.9.9",
+    "knip": "6.39.0",
+    "prettier-plugin-svelte": "4.1.1"
+  }
+}

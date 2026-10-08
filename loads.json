@@ -1,0 +1,46 @@
+[
+  {
+    "kind": "js_tsconfig",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_tsc",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_svelte_kit",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_vite_config",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_vite",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_vitest",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_storybook",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_oxlint_test",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_oxfmt_test",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_prettier_test",
+    "label": "@latticebuild_js//js:defs.bzl"
+  },
+  {
+    "kind": "js_knip_test",
+    "label": "@latticebuild_js//js:defs.bzl"
+  }
+]

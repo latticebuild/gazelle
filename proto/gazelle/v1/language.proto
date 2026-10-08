@@ -1,0 +1,234 @@
+syntax = "proto3";
+
+package gazelle.v1;
+
+option go_package = "github.com/latticebuild/gazelle/generated/gazelle/v1;gazellev1";
+
+// LanguageService implements one Gazelle language in a separate process.
+//
+// The host owns Gazelle's walk, directive parsing, merging, resolution and
+// writing. A plugin owns only its language's semantics: it receives plain
+// values and returns plain values, and never reads or writes Starlark syntax.
+// The host serves one plugin process per run over HTTP/2 on the process's
+// standard input and output; standard error carries diagnostics.
+service LanguageService {
+  // Initialize describes the language and the packages it generates in. The
+  // host calls it once, before walking the repository.
+  rpc Initialize(InitializeRequest) returns (InitializeResponse);
+
+  // Generate returns the rules one package should contain. The host calls it
+  // only for packages listed by Initialize.
+  rpc Generate(GenerateRequest) returns (GenerateResponse);
+
+  // Index returns the imports each rule in one BUILD file provides, for
+  // resolving references from other packages.
+  rpc Index(IndexRequest) returns (IndexResponse);
+}
+
+message InitializeRequest {
+  // Absolute, canonical path of the repository root.
+  string repository_root = 1;
+}
+
+message InitializeResponse {
+  // Every rule kind the language generates or indexes.
+  repeated Kind kinds = 1;
+  // The load statements that define those kinds.
+  repeated Load loads = 2;
+  // Directives the language reads, without the "gazelle:" prefix.
+  repeated Directive directives = 3;
+  // Slash-separated package directories this language generates in, relative
+  // to the repository root. The empty string is the root package.
+  repeated string packages = 4;
+}
+
+message Kind {
+  string name = 1;
+  // Attributes the language owns. The host overwrites them on every run
+  // unless the attribute or an item carries `# keep`.
+  repeated string mergeable_attributes = 2;
+  // Owned attributes whose values may contain references. The host sets them
+  // after resolution.
+  repeated string resolve_attributes = 3;
+  // A rule of this kind with none of these attributes is empty and is deleted
+  // when the language reports it stale.
+  repeated string non_empty_attributes = 4;
+}
+
+message Load {
+  // Label of the .bzl file, such as "@rules_rust//rust:defs.bzl".
+  string label = 1;
+  repeated string symbols = 2;
+}
+
+message Directive {
+  string name = 1;
+  // An inherited directive applies to subdirectories until one overrides it;
+  // otherwise it applies only to the directory whose BUILD file declares it.
+  bool inherited = 2;
+}
+
+message GenerateRequest {
+  // Slash-separated package directory; the empty string is the root package.
+  string package = 1;
+  // Regular files in the package as Gazelle's walk sees them, relative to the
+  // package directory, including files in subdirectories that are not
+  // packages themselves.
+  repeated string files = 2;
+  // Package-relative paths present on disk that Gazelle excluded. Bazel globs
+  // would still match them.
+  repeated string excluded_paths = 3;
+  // Values of this language's directives that apply to this package, outermost
+  // first. An overridden value is still listed, so for a single-valued
+  // directive the last value wins.
+  repeated DirectiveValue directives = 4;
+  // The existing BUILD file, or unset when the package has none yet.
+  BuildFile build_file = 5;
+}
+
+message DirectiveValue {
+  string name = 1;
+  string value = 2;
+}
+
+message BuildFile {
+  // "BUILD.bazel" or "BUILD".
+  string name = 1;
+  // Every rule in the file, in file order, including rules of other kinds.
+  repeated Rule rules = 2;
+}
+
+// An existing rule as the host read it.
+message Rule {
+  string kind = 1;
+  string name = 2;
+  map<string, Attribute> attributes = 3;
+  // The whole rule carries `# keep`.
+  bool kept = 4;
+}
+
+message Attribute {
+  Value value = 1;
+  // The attribute carries `# keep`.
+  bool kept = 2;
+}
+
+message GenerateResponse {
+  // Rules the package should contain, in reading order. The host appends new
+  // rules in this order and leaves existing rules where they are.
+  repeated GeneratedRule rules = 1;
+  // Existing rules of this language whose source no longer exists.
+  repeated RuleName stale_rules = 2;
+}
+
+message GeneratedRule {
+  string kind = 1;
+  string name = 2;
+  // Attribute values. References may appear only in the kind's resolve
+  // attributes.
+  map<string, Value> attributes = 3;
+}
+
+message RuleName {
+  string kind = 1;
+  string name = 2;
+}
+
+message IndexRequest {
+  // Slash-separated package directory; the empty string is the root package.
+  string package = 1;
+  // The file's rules of this language's kinds, after merging.
+  repeated Rule rules = 2;
+}
+
+message IndexResponse {
+  repeated RuleImports rules = 1;
+}
+
+message RuleImports {
+  // Rule name within the package.
+  string name = 1;
+  repeated ImportSpec imports = 2;
+}
+
+// ImportSpec names something a rule provides, in a language's namespace.
+message ImportSpec {
+  // Providing language; empty means the requesting language.
+  string language = 1;
+  string import = 2;
+}
+
+// Value is a Starlark value without syntax.
+message Value {
+  oneof value {
+    string string_value = 1;
+    int64 int_value = 2;
+    bool bool_value = 3;
+    Null null_value = 4;
+    List list = 5;
+    Dict dict = 6;
+    Glob glob = 7;
+    Select select = 8;
+    Concatenation concatenation = 9;
+    // Only in generated rules.
+    Reference reference = 10;
+    // Only in existing rules.
+    Opaque opaque = 11;
+  }
+}
+
+// Starlark None.
+message Null {}
+
+message List {
+  repeated Value items = 1;
+  // Per-item `# keep`, parallel to items; only in existing rules.
+  repeated bool kept = 2;
+}
+
+message Dict {
+  repeated DictEntry entries = 1;
+}
+
+message DictEntry {
+  Value key = 1;
+  Value value = 2;
+  // The entry carries `# keep`; only in existing rules.
+  bool kept = 3;
+}
+
+message Glob {
+  repeated string include = 1;
+  repeated string exclude = 2;
+  // Unset leaves Bazel's default.
+  optional bool allow_empty = 3;
+}
+
+message Select {
+  repeated SelectCase cases = 1;
+}
+
+message SelectCase {
+  // A condition label, or "//conditions:default".
+  string condition = 1;
+  Value value = 2;
+}
+
+// Starlark `+` over two or more operands.
+message Concatenation {
+  repeated Value operands = 1;
+}
+
+// Reference is a first-party edge the host resolves to a label after every
+// package is indexed.
+message Reference {
+  ImportSpec spec = 1;
+  // Label used when no rule provides the import; empty makes that an error.
+  string fallback = 2;
+}
+
+// Opaque is an expression the host keeps but cannot represent as a value.
+message Opaque {
+  // The expression's Starlark source, for diagnostics only.
+  string source = 1;
+}

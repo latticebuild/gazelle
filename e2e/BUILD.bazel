@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+
+package(default_visibility = ["//visibility:private"])
+
+go_test(
+    name = "e2e_test",
+    srcs = ["e2e_test.go"],
+    data = [
+        "//:e2e_fixtures",
+        "//js/plugin:gazelle",
+        "//testdata/e2e:loads.json",
+    ],
+    env = {
+        "BOUND_CACHE": "0",
+        "FIXTURES": "$(rlocationpaths //:e2e_fixtures)",
+        "JS_PLUGIN": "$(rlocationpath //js/plugin:gazelle)",
+        "LOADS": "$(rlocationpath //testdata/e2e:loads.json)",
+    },
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:gazelle",
+        "@com_github_bazelbuild_buildtools//build",
+        "@io_bazel_rules_go//go/runfiles",
+    ],
+)

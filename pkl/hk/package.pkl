@@ -1,0 +1,18 @@
+// The hk release this repository pins. hk modules import this file `as hk`
+// rather than the package URI, because pklr cannot resolve a `PklProject`
+// dependency. A version bump edits the two URIs below, the `amends` line of the
+// root `hk.pkl`, and the `aqua:jdx/hk` pin in `mise.toml` together.
+
+import "package://github.com/jdx/hk/releases/download/v2.0.0/hk@2.0.0#/Builtins.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.0.0/hk@2.0.0#/Config.pkl"
+
+typealias Step = Config.Step
+
+typealias Command = Config.Command
+
+typealias CommandSpec = Config.CommandSpec
+
+typealias StepTest = Config.StepTest
+
+/// hk's builtin step definitions.
+builtins = Builtins

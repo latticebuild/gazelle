@@ -1,0 +1,8 @@
+bazel-*
+node_modules/
+/.local/
+/.cache/
+/.plans/
+
+/js/plugin/dist/
+/js/dist/

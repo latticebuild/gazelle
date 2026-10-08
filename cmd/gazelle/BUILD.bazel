@@ -1,0 +1,11 @@
+load("//gazelle:defs.bzl", "gazelle_binary")
+
+exports_files(["main.go"])
+
+gazelle_binary(
+    name = "gazelle",
+    index = "@pnpm//:workspace.json",
+    loads = "//:loads.json",
+    plugin = "//js/plugin:gazelle",
+    visibility = ["//visibility:public"],
+)

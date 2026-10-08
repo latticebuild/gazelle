@@ -1,0 +1,44 @@
+{
+  "name": "@latticebuild/gazelle-js",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/service.d.ts",
+      "default": "./dist/service.js"
+    }
+  },
+  "scripts": {
+    "check:types": "cd .. && tsc --project tsconfig.json",
+    "check:lint": "cd .. && oxlint --config .oxlintrc.json plugin/src plugin/tests vitest.config.ts",
+    "check:format": "cd .. && oxfmt --check --config .oxfmtrc.json plugin/src plugin/tests vitest.config.ts"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "2.16.0",
+    "@connectrpc/connect": "2.2.0",
+    "@connectrpc/connect-node": "2.2.0",
+    "@vercel/nft": "1.11.0",
+    "resolve.exports": "2.0.3",
+    "svelte": "5.57.1",
+    "typescript": "6.0.3",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.4",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "@vitest/coverage-v8": "5.0.3",
+    "effection": "4.2.0",
+    "knip": "6.39.0",
+    "oxfmt": "0.71.0",
+    "oxlint": "1.86.0",
+    "oxlint-tsgolint": "7.0.2003",
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
+  },
+  "packageManager": "pnpm@12.4.2"
+}

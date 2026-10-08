@@ -1,0 +1,73 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+defaults:
+  run:
+    shell: bash
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, xcode-27, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    env:
+      HK_MISE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Select Bazel output root
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            printf 'BAZEL_OUTPUT_USER_ROOT=D:/b\n' >> "$GITHUB_ENV"
+          else
+            printf 'BAZEL_OUTPUT_USER_ROOT=%s/bazel\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          fi
+      - name: Select Windows scratch directory
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $scratch = [IO.Directory]::CreateDirectory((Join-Path $env:LOCALAPPDATA 'Temp/latticebuild')).FullName
+          [IO.File]::AppendAllText($env:GITHUB_ENV, "TMP=$scratch`nTEMP=$scratch`n")
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
+        with:
+          version: 2026.10.3
+      - name: Prepare dependencies
+        run: mise run bootstrap
+      - name: Verify generated protocol
+        run: mise run verify-generated
+      - name: Verify external examples
+        run: nu scripts/check-examples.nu
+      - name: Verify API documentation
+        run: mise run check-docs
+      - name: Validate checks
+        run: hk validate
+      - name: Test checks
+        run: hk test
+      - name: Check files
+        run: hk check --all --slow
+      - name: Build artifacts
+        run: bazel --output_user_root="$BAZEL_OUTPUT_USER_ROOT" build //:artifacts
+      - name: Test
+        run: bazel --output_user_root="$BAZEL_OUTPUT_USER_ROOT" test //:test --test_env=TMP --test_env=TEMP
+      - name: Select optional gates
+        id: gates
+        shell: nu --no-config-file {0}
+        run: |
+          let plan = (open ci.json)
+          $"race=($plan.race)" | save --append $env.GITHUB_OUTPUT
+      - name: Race tests
+        if: runner.os != 'Windows' && steps.gates.outputs.race == 'true'
+        run: bazel --output_user_root="$BAZEL_OUTPUT_USER_ROOT" test //:race_test

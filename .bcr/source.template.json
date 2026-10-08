@@ -1,0 +1,5 @@
+{
+  "url": "https://github.com/latticebuild/gazelle/releases/download/{TAG}/gazelle-{VERSION}.tar.gz",
+  "integrity": "{INTEGRITY}",
+  "strip_prefix": "gazelle-{VERSION}"
+}
