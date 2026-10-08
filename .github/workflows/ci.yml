@@ -71,3 +71,97 @@ jobs:
       - name: Race tests
         if: runner.os != 'Windows' && steps.gates.outputs.race == 'true'
         run: bazel --output_user_root="$BAZEL_OUTPUT_USER_ROOT" test //:race_test
+
+  consumer:
+    name: BCR consumer (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - ubuntu-24.04
+        - xcode-27
+        - windows-2025
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        persist-credentials: false
+    - name: Select the consumer output root
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          printf 'BAZEL_OUTPUT_USER_ROOT=D:/consumer-bazel\n' >> "$GITHUB_ENV"
+        else
+          printf 'BAZEL_OUTPUT_USER_ROOT=%s/consumer-bazel\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+        fi
+    - name: Select Windows scratch directory
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $scratch = [IO.Directory]::CreateDirectory((Join-Path $env:LOCALAPPDATA 'Temp/latticebuild')).FullName
+        [IO.File]::AppendAllText($env:GITHUB_ENV, "TMP=$scratch`nTEMP=$scratch`n")
+    - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca
+      with:
+        version: 2026.10.3
+    - name: Prepare native Linux sandbox
+      run: |
+        diagnostics="$RUNNER_TEMP/consumer-evidence/host"
+        mkdir -p "$diagnostics"
+        id > "$diagnostics/identity.log"
+        uname -a > "$diagnostics/kernel.log"
+        sysctl kernel.unprivileged_userns_clone kernel.apparmor_restrict_unprivileged_userns user.max_user_namespaces \
+          > "$diagnostics/userns.log" 2>&1 || printf 'Some diagnostic sysctls are unavailable.\n' >> "$diagnostics/userns.log"
+        sudo aa-status | tee "$diagnostics/apparmor.log"
+        install_base=$(bazel --batch --ignore_all_rc_files --output_user_root="$BAZEL_OUTPUT_USER_ROOT" info install_base)
+        install_base=$(realpath "$install_base")
+        root=$(realpath "$BAZEL_OUTPUT_USER_ROOT")
+        [[ "$(dirname "$install_base")" == "$root/install" ]]
+        [[ "$(basename "$install_base")" =~ ^[0-9a-f]{32}$ ]]
+        sandbox="$install_base/linux-sandbox"
+        [[ -f "$sandbox" && ! -L "$sandbox" && "$(id -u)" != 0 ]]
+        sha256sum "$sandbox" > "$diagnostics/linux-sandbox.sha256"
+        if ! "$sandbox" -- /bin/true > "$diagnostics/probe-before.log" 2>&1; then
+          sudo journalctl -k --no-pager --since '-5 min' | tee "$diagnostics/kernel-denials-before.log"
+          # Ubuntu's per-application userns permission; global restrictions stay enabled.
+          sudo chown root:root "$sandbox"
+          sudo chmod 0555 "$sandbox"
+          sudo python3 - "$sandbox" <<'PY'
+        import os, sys
+        os.setxattr(sys.argv[1], 'security.apparmor', b'trusted')
+        assert os.getxattr(sys.argv[1], 'security.apparmor') == b'trusted'
+        PY
+          printf 'abi <abi/4.0>,\ninclude <tunables/global>\nprofile latticebuild-bazel-sandbox "%s" xattrs=(security.apparmor="trusted") flags=(unconfined) {\n  userns,\n}\n' "$sandbox" \
+            > "$diagnostics/apparmor-profile"
+          sudo install -m 0644 "$diagnostics/apparmor-profile" /etc/apparmor.d/latticebuild-bazel-sandbox
+          sudo apparmor_parser -r /etc/apparmor.d/latticebuild-bazel-sandbox
+        fi
+        if ! "$sandbox" -- /bin/true > "$diagnostics/probe-after.log" 2>&1; then
+          sudo journalctl -k --no-pager --since '-5 min' | tee "$diagnostics/kernel-denials.log"
+          cat "$diagnostics/probe-after.log"
+          exit 1
+        fi
+        sha256sum --check "$diagnostics/linux-sandbox.sha256"
+        stat "$sandbox" > "$diagnostics/linux-sandbox.stat"
+        printf 'BCR_INSTALL_BASE=%s\n' "$install_base" >> "$GITHUB_ENV"
+      if: runner.os == 'Linux'
+    - name: Build and execute the renamed-module consumer
+      run: |
+        python_command=python3
+        install_args=()
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          python_command=python
+        fi
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          install_args+=("--install-base=$BCR_INSTALL_BASE")
+        fi
+        export MSYS2_ARG_CONV_EXCL='*'
+        "$python_command" scripts/check-consumer.py \
+          --evidence="$RUNNER_TEMP/consumer-evidence" \
+          --output-root="$BAZEL_OUTPUT_USER_ROOT" "${install_args[@]}"
+    - name: Retain consumer and host evidence
+      if: always()
+      uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+      with:
+        name: bcr-consumer-${{ matrix.os }}
+        path: ${{ runner.temp }}/consumer-evidence/
+        retention-days: 30

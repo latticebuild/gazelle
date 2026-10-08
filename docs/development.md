@@ -17,6 +17,13 @@ On Linux and macOS also run `bazel test //:race_test`.
 Native CI runs these gates on Ubuntu 24.04, macOS 27, and Windows 2025.
 See [usage.md](usage.md) for setup and supported inputs.
 
+The renamed-module BCR consumer also runs on all three platforms. It consumes
+the exact JavaScript development revision through a private registry, verifies
+strict generation before and after compilation, and executes the compiled Node
+test. Linux compilation stays in the native namespace sandbox; the bundled test
+uses the JavaScript runtime's declared `no-sandbox` requirement. CI retains
+uncached first-attempt execution logs, source hashes, and owned Bazel shutdown.
+
 The JavaScript checks also have direct package commands, using the same pinned
 compiler, Oxlint and Oxfmt tools as the Bazel targets:
 
