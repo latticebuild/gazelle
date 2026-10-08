@@ -18,7 +18,7 @@ use_repo(yq, "yq_darwin_amd64", "yq_darwin_arm64", "yq_linux_amd64", "yq_linux_a
 
 register_toolchains("@yq_toolchains//:all")
 
-bazel_dep(name = "latticebuild_js", version = "0.1.0", repo_name = "custom_js")
+bazel_dep(name = "latticebuild_js", version = "0.1.1", repo_name = "custom_js")
 
 node_modules = use_repo_rule("@custom_js//js:repositories.bzl", "node_modules")
 
@@ -33,22 +33,15 @@ node_modules(
     package_json = "//:package.json",
 )
 
-bazel_dep(name = "latticebuild_gazelle", version = "0.1.0", repo_name = "generator")
+bazel_dep(name = "latticebuild_gazelle", version = "0.1.1", repo_name = "generator")
 
 git_override(
     module_name = "latticebuild_js",
-    commit = "91c491036d71720eac9fc475e224f9c6dc0c9fae",
+    commit = "eaaee86ddab580ad81f6f3e5a791d8557615d927",
     remote = "https://github.com/latticebuild/rules_js.git",
 )
 
 local_path_override(
     module_name = "latticebuild_gazelle",
     path = "../..",
-)
-
-# Root overrides also pin the unregistered transitive process library.
-git_override(
-    module_name = "latticebuild_graceproc",
-    commit = "58b51c42b47b9ef8cc3d5db5ac988298a3a3a5e8",
-    remote = "https://github.com/latticebuild/graceproc.git",
 )

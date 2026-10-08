@@ -12,8 +12,8 @@ github.com/bmatcuk/doublestar/v4 v4.9.1 h1:X8jg9rRZmJd4yRy7ZeNDRnM+T3ZfHv15JiBJ/
 github.com/bmatcuk/doublestar/v4 v4.9.1/go.mod h1:xBQ8jztBU6kakFMg+8WGxn0c6z1fTSPVIjEY1Wr7jzc=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
 github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
-github.com/latticebuild/graceproc v0.0.0-20261008024653-b3d8d28db78c h1:Awo50AzsX7LNmkJQ38NUZO6UmK3ROyv5oyFU26txP8Y=
-github.com/latticebuild/graceproc v0.0.0-20261008024653-b3d8d28db78c/go.mod h1:oNPHwaH0XEBTBqecJmq8tEVP00dHWkVQFN0GT1mvRfg=
+github.com/latticebuild/graceproc v0.1.0 h1:K2eyHPnYDsHBjGGHAAhC0dZznbDogi9F2Smsj98XSM4=
+github.com/latticebuild/graceproc v0.1.0/go.mod h1:oNPHwaH0XEBTBqecJmq8tEVP00dHWkVQFN0GT1mvRfg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 golang.org/x/mod v0.41.0 h1:qJmnOUb4YB+FsEuM3HcWucdZASCPGhsX6uljO6pog0c=

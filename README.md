@@ -12,7 +12,7 @@ Use Bazel 9.2 with Bzlmod. Until the module is registered in the Bazel Central
 Registry, pin a source revision in your root MODULE.bazel:
 
 ```starlark
-bazel_dep(name = "latticebuild_gazelle", version = "0.1.0")
+bazel_dep(name = "latticebuild_gazelle", version = "0.1.1")
 git_override(
     module_name = "latticebuild_gazelle",
     remote = "https://github.com/latticebuild/gazelle.git",

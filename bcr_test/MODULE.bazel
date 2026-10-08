@@ -18,7 +18,7 @@ use_repo(yq, "yq_darwin_amd64", "yq_darwin_arm64", "yq_linux_amd64", "yq_linux_a
 
 register_toolchains("@yq_toolchains//:all")
 
-bazel_dep(name = "latticebuild_js", version = "0.1.0", repo_name = "custom_js")
+bazel_dep(name = "latticebuild_js", version = "0.1.1", repo_name = "custom_js")
 
 node_modules = use_repo_rule("@custom_js//js:repositories.bzl", "node_modules")
 
@@ -33,7 +33,7 @@ node_modules(
     package_json = "//:package.json",
 )
 
-bazel_dep(name = "latticebuild_gazelle", version = "0.1.0", repo_name = "subject")
+bazel_dep(name = "latticebuild_gazelle", version = "0.1.1", repo_name = "subject")
 local_path_override(
     module_name = "latticebuild_gazelle",
     path = "..",
