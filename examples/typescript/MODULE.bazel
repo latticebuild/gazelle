@@ -37,7 +37,7 @@ bazel_dep(name = "latticebuild_gazelle", version = "0.1.1", repo_name = "generat
 
 git_override(
     module_name = "latticebuild_js",
-    commit = "eaaee86ddab580ad81f6f3e5a791d8557615d927",
+    commit = "1a9b7f6392744c0b43060c547b68be625ca1b25c",
     remote = "https://github.com/latticebuild/rules_js.git",
 )
 
